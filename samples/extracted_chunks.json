@@ -1,0 +1,47 @@
+[
+  {
+    "source_id": "SRC_A1B2C3",
+    "chunk_id": "SRC_A1B2C3_CH_01",
+    "grade": 1,
+    "subject": "Math",
+    "topic": "Counting Numbers",
+    "text": "Numbers help us count objects around us. We use numbers every day! When we count, we start from 1. The numbers 1, 2, 3, 4, 5 are called counting numbers. We can count small things like apples, books, and toys. Learning to count helps us know how many things we have.",
+    "chunk_index": 0
+  },
+  {
+    "source_id": "SRC_A1B2C3",
+    "chunk_id": "SRC_A1B2C3_CH_02",
+    "grade": 1,
+    "subject": "Math",
+    "topic": "Shapes",
+    "text": "Shapes are all around us! A circle is round with no corners. A triangle has three sides and three corners. A square has four equal sides. A rectangle has four sides — two long and two short. We can find these shapes in objects we see every day.",
+    "chunk_index": 1
+  },
+  {
+    "source_id": "SRC_D4E5F6",
+    "chunk_id": "SRC_D4E5F6_CH_01",
+    "grade": 3,
+    "subject": "Science",
+    "topic": "Plants",
+    "text": "Plants are living things that make their own food. They use sunlight, water, and air to make food in a process called photosynthesis. Plants have roots, stems, leaves, and sometimes flowers. Roots absorb water from the soil. Leaves capture sunlight. Without plants, most life on Earth could not survive.",
+    "chunk_index": 0
+  },
+  {
+    "source_id": "SRC_D4E5F6",
+    "chunk_id": "SRC_D4E5F6_CH_02",
+    "grade": 3,
+    "subject": "Science",
+    "topic": "Animals",
+    "text": "Animals are living things that cannot make their own food. They must eat plants or other animals to survive. Animals can be grouped by what they eat: herbivores eat only plants, carnivores eat only meat, and omnivores eat both. Animals breathe, grow, move, and reproduce.",
+    "chunk_index": 1
+  },
+  {
+    "source_id": "SRC_G7H8I9",
+    "chunk_id": "SRC_G7H8I9_CH_01",
+    "grade": 4,
+    "subject": "English",
+    "topic": "Nouns and Verbs",
+    "text": "A noun is a word that names a person, place, thing, or idea. Examples: teacher, school, book, happiness. A verb is a word that shows an action or a state of being. Examples: run, jump, is, was. Every sentence must have at least one noun and one verb to be complete.",
+    "chunk_index": 0
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "question_id": "Q_SRC_A1B2C3_CH_01_001",
+    "question": "What number do we start counting from?",
+    "type": "MCQ",
+    "options": ["0", "1", "2", "10"],
+    "answer": "1",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_A1B2C3_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_A1B2C3_CH_01_002",
+    "question": "The numbers 1, 2, 3, 4, 5 are called counting numbers.",
+    "type": "TRUE_FALSE",
+    "options": ["True", "False"],
+    "answer": "True",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_A1B2C3_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_A1B2C3_CH_01_003",
+    "question": "Learning to count helps us know how ___ things we have.",
+    "type": "FILL_BLANK",
+    "options": null,
+    "answer": "many",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_A1B2C3_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_A1B2C3_CH_02_001",
+    "question": "How many sides does a triangle have?",
+    "type": "MCQ",
+    "options": ["2", "3", "4", "5"],
+    "answer": "3",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_A1B2C3_CH_02"
+  },
+  {
+    "question_id": "Q_SRC_A1B2C3_CH_02_002",
+    "question": "A square has four ___ sides.",
+    "type": "FILL_BLANK",
+    "options": null,
+    "answer": "equal",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_A1B2C3_CH_02"
+  },
+  {
+    "question_id": "Q_SRC_D4E5F6_CH_01_001",
+    "question": "What is the process by which plants make their own food?",
+    "type": "MCQ",
+    "options": ["Respiration", "Photosynthesis", "Digestion", "Germination"],
+    "answer": "Photosynthesis",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_D4E5F6_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_D4E5F6_CH_01_002",
+    "question": "Plants can survive without sunlight.",
+    "type": "TRUE_FALSE",
+    "options": ["True", "False"],
+    "answer": "False",
+    "difficulty": "medium",
+    "source_chunk_id": "SRC_D4E5F6_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_D4E5F6_CH_02_001",
+    "question": "An animal that eats only plants is called a ___.",
+    "type": "FILL_BLANK",
+    "options": null,
+    "answer": "herbivore",
+    "difficulty": "medium",
+    "source_chunk_id": "SRC_D4E5F6_CH_02"
+  },
+  {
+    "question_id": "Q_SRC_G7H8I9_CH_01_001",
+    "question": "Which of the following is a verb?",
+    "type": "MCQ",
+    "options": ["teacher", "school", "run", "happiness"],
+    "answer": "run",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_G7H8I9_CH_01"
+  },
+  {
+    "question_id": "Q_SRC_G7H8I9_CH_01_002",
+    "question": "Every complete sentence must have at least one noun and one ___.",
+    "type": "FILL_BLANK",
+    "options": null,
+    "answer": "verb",
+    "difficulty": "easy",
+    "source_chunk_id": "SRC_G7H8I9_CH_01"
+  }
+]

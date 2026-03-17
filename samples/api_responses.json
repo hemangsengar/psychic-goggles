@@ -1,0 +1,159 @@
+{
+  "POST /ingest": {
+    "request": {
+      "form_data": {
+        "file": "peblo_pdf_grade1_math_numbers.pdf",
+        "grade": 1,
+        "subject": "Math"
+      }
+    },
+    "response": {
+      "source_id": "SRC_A1B2C3",
+      "filename": "peblo_pdf_grade1_math_numbers.pdf",
+      "chunks_created": 8,
+      "status": "processed"
+    }
+  },
+
+  "POST /generate-quiz": {
+    "request": {
+      "source_id": "SRC_A1B2C3",
+      "questions_per_chunk": 3
+    },
+    "response": [
+      {
+        "question_id": "Q_SRC_A1B2C3_CH_01_001",
+        "question": "What number do we start counting from?",
+        "type": "MCQ",
+        "options": ["0", "1", "2", "10"],
+        "answer": "1",
+        "difficulty": "easy",
+        "source_chunk_id": "SRC_A1B2C3_CH_01"
+      },
+      {
+        "question_id": "Q_SRC_A1B2C3_CH_01_002",
+        "question": "The numbers 1, 2, 3, 4, 5 are called counting numbers.",
+        "type": "TRUE_FALSE",
+        "options": ["True", "False"],
+        "answer": "True",
+        "difficulty": "easy",
+        "source_chunk_id": "SRC_A1B2C3_CH_01"
+      },
+      {
+        "question_id": "Q_SRC_A1B2C3_CH_01_003",
+        "question": "Learning to count helps us know how ___ things we have.",
+        "type": "FILL_BLANK",
+        "options": null,
+        "answer": "many",
+        "difficulty": "easy",
+        "source_chunk_id": "SRC_A1B2C3_CH_01"
+      }
+    ]
+  },
+
+  "GET /quiz?topic=shapes&difficulty=easy": {
+    "response": {
+      "questions": [
+        {
+          "question_id": "Q_SRC_A1B2C3_CH_02_001",
+          "question": "How many sides does a triangle have?",
+          "type": "MCQ",
+          "options": ["2", "3", "4", "5"],
+          "answer": "3",
+          "difficulty": "easy",
+          "source_chunk_id": "SRC_A1B2C3_CH_02"
+        },
+        {
+          "question_id": "Q_SRC_A1B2C3_CH_02_002",
+          "question": "A square has four ___ sides.",
+          "type": "FILL_BLANK",
+          "options": null,
+          "answer": "equal",
+          "difficulty": "easy",
+          "source_chunk_id": "SRC_A1B2C3_CH_02"
+        }
+      ],
+      "total": 2
+    }
+  },
+
+  "POST /submit-answer (correct)": {
+    "request": {
+      "student_id": "S001",
+      "question_id": "Q_SRC_A1B2C3_CH_02_001",
+      "selected_answer": "3"
+    },
+    "response": {
+      "is_correct": true,
+      "correct_answer": "3",
+      "new_difficulty": "easy",
+      "message": "Correct! Great job!"
+    }
+  },
+
+  "POST /submit-answer (incorrect — triggers demotion after 2nd wrong)": {
+    "request": {
+      "student_id": "S001",
+      "question_id": "Q_SRC_D4E5F6_CH_01_002",
+      "selected_answer": "True"
+    },
+    "response": {
+      "is_correct": false,
+      "correct_answer": "False",
+      "new_difficulty": "easy",
+      "message": "Incorrect. The correct answer is: False"
+    }
+  },
+
+  "GET /student/S001/profile": {
+    "response": {
+      "student_id": "S001",
+      "current_difficulty": "medium",
+      "total_correct": 7,
+      "total_answered": 10,
+      "accuracy_percentage": 70.0
+    }
+  },
+
+  "GET /student/S001/history": {
+    "response": [
+      {
+        "question_id": "Q_SRC_A1B2C3_CH_02_001",
+        "question": "How many sides does a triangle have?",
+        "selected_answer": "3",
+        "correct_answer": "3",
+        "is_correct": true,
+        "difficulty_at_attempt": "easy",
+        "answered_at": "2026-03-17T10:23:45.123456"
+      },
+      {
+        "question_id": "Q_SRC_D4E5F6_CH_01_002",
+        "question": "Plants can survive without sunlight.",
+        "selected_answer": "True",
+        "correct_answer": "False",
+        "is_correct": false,
+        "difficulty_at_attempt": "medium",
+        "answered_at": "2026-03-17T10:24:10.654321"
+      }
+    ]
+  },
+
+  "GET /student/S001/next-question": {
+    "response": {
+      "question_id": "Q_SRC_D4E5F6_CH_02_001",
+      "question": "An animal that eats only plants is called a ___.",
+      "type": "FILL_BLANK",
+      "options": null,
+      "answer": "herbivore",
+      "difficulty": "medium",
+      "source_chunk_id": "SRC_D4E5F6_CH_02"
+    }
+  },
+
+  "GET /health": {
+    "response": {
+      "status": "ok",
+      "service": "peblo-quiz-engine"
+    }
+  }
+}
