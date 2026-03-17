@@ -1,5 +1,34 @@
+# Peblo Quiz Engine
 
 A backend system that ingests educational PDFs, generates quiz questions with Claude AI, and serves them through a REST API with adaptive difficulty.
+
+---
+
+## Repository Structure
+
+```
+peblo-backend/
+├── main.py                  # FastAPI app entry point — all route definitions
+├── requirements.txt         # Python dependencies
+├── .env.example             # Environment variable template
+├── data/                    # Provided sample PDFs for ingestion
+├── samples/                 # Example outputs: chunks, questions, API responses, DB schema
+├── models/
+│   ├── database.py          # SQLAlchemy engine, SessionLocal, get_db()
+│   ├── db_models.py         # ORM models: 5 tables with FK relationships
+│   └── schemas.py           # Pydantic v2 request / response schemas
+├── ingestion/
+│   ├── pdf_extractor.py     # PyMuPDF text extraction
+│   └── ingester.py          # Ingestion pipeline orchestrator
+├── processing/
+│   └── text_processor.py    # Text cleaning, chunking, topic extraction
+├── quiz/
+│   ├── generator.py         # Claude API prompt + response parsing
+│   └── service.py           # Question generation, dedup, retrieval
+└── evaluation/
+    ├── adaptive.py          # Streak-based difficulty adjustment engine
+    └── service.py           # Answer submission, student profile, history
+```
 
 ---
 
@@ -42,7 +71,7 @@ GET  /student/{id}/next-question
 GET  /health
 ```
 
-### Module breakdown
+### Module Breakdown
 
 | Module | Responsibility |
 |---|---|
@@ -72,70 +101,109 @@ GET  /health
 - Python **3.12** (3.13+ not yet supported by pydantic-core)
 - An [Anthropic API key](https://console.anthropic.com/)
 
-### Install
+### 1. Clone the repository
 
 ```bash
-git clone <repo-url>
-cd peblo-backend
+git clone https://github.com/hemangsengar/psychic-goggles.git
+cd psychic-goggles
+```
 
+### 2. Install dependencies
+
+```bash
 python3.12 -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
 ```
 
-### Configure environment
+### 3. Configure environment variables
+
+Copy the example env file and fill in your API key:
 
 ```bash
 cp .env.example .env
-# Open .env and paste your ANTHROPIC_API_KEY
 ```
 
-`.env`:
+Open `.env` and set:
+
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+LLM_API_KEY=your_anthropic_api_key_here
 DATABASE_URL=sqlite:///./peblo.db
 ```
 
-### Run
+> `.env.example` ships with empty values — do not commit real credentials.
+
+### 4. Run the backend
 
 ```bash
 source venv/bin/activate
 uvicorn main:app --reload
 ```
 
-- API base: `http://localhost:8000`
-- Interactive docs: `http://localhost:8000/docs`
+- API base URL: `http://localhost:8000`
+- Interactive Swagger docs: `http://localhost:8000/docs`
+
+The SQLite database (`peblo.db`) is created automatically on first run.
 
 ---
 
-## API Reference
+## Testing Endpoints
 
-### POST `/ingest`
+Run these curl commands in order to test the full pipeline.
 
-Upload a PDF and extract/store its content.
+### Step 1 — Health check
 
 ```bash
-curl -X POST http://localhost:8000/ingest \
-  -F "file=@peblo_pdf_grade1_math_numbers.pdf" \
-  -F "grade=1" \
-  -F "subject=Math"
+curl http://localhost:8000/health
 ```
 
+Expected:
+```json
+{"status": "ok", "service": "peblo-quiz-engine"}
+```
+
+---
+
+### Step 2 — Ingest the provided PDFs
+
+```bash
+# Grade 1 Math
+curl -X POST http://localhost:8000/ingest \
+  -F "file=@data/peblo_pdf_grade1_math_numbers.pdf" \
+  -F "grade=1" \
+  -F "subject=Math"
+
+# Grade 3 Science
+curl -X POST http://localhost:8000/ingest \
+  -F "file=@data/peblo_pdf_grade3_science_plants_animals.pdf" \
+  -F "grade=3" \
+  -F "subject=Science"
+
+# Grade 4 English
+curl -X POST http://localhost:8000/ingest \
+  -F "file=@data/peblo_pdf_grade4_english_grammar.pdf" \
+  -F "grade=4" \
+  -F "subject=English"
+```
+
+Expected response (each):
 ```json
 {
   "source_id": "SRC_A1B2C3",
   "filename": "peblo_pdf_grade1_math_numbers.pdf",
-  "chunks_created": 8,
+  "chunks_created": 1,
   "status": "processed"
 }
 ```
 
+> Note the `source_id` from each response — you'll need it in the next step.
+
 ---
 
-### POST `/generate-quiz`
+### Step 3 — Generate quiz questions
 
-Generate questions from an ingested source using Claude.
+Replace `SRC_A1B2C3` with your actual `source_id`:
 
 ```bash
 curl -X POST http://localhost:8000/generate-quiz \
@@ -143,6 +211,7 @@ curl -X POST http://localhost:8000/generate-quiz \
   -d '{"source_id": "SRC_A1B2C3", "questions_per_chunk": 3}'
 ```
 
+Expected:
 ```json
 [
   {
@@ -157,42 +226,35 @@ curl -X POST http://localhost:8000/generate-quiz \
 ]
 ```
 
-Question types: `MCQ` · `TRUE_FALSE` · `FILL_BLANK`
-Difficulty: `easy` · `medium` · `hard` (grade-aware)
-
 ---
 
-### GET `/quiz`
-
-Retrieve questions with optional filters.
-
-| Query param | Type | Description |
-|---|---|---|
-| `topic` | string | Partial match on chunk topic |
-| `difficulty` | string | `easy` / `medium` / `hard` |
-| `subject` | string | Partial match on subject |
-| `grade` | int | Exact grade level |
-| `limit` | int | Max results (1–100, default 10) |
+### Step 4 — Retrieve quiz questions (with filters)
 
 ```bash
-curl "http://localhost:8000/quiz?topic=shapes&difficulty=easy&limit=5"
-curl "http://localhost:8000/quiz?grade=3&subject=Science"
-```
+# All questions (default limit 10)
+curl "http://localhost:8000/quiz"
 
-```json
-{
-  "questions": [ ... ],
-  "total": 5
-}
+# Filter by difficulty
+curl "http://localhost:8000/quiz?difficulty=easy"
+
+# Filter by subject
+curl "http://localhost:8000/quiz?subject=Science"
+
+# Filter by grade + difficulty
+curl "http://localhost:8000/quiz?grade=4&difficulty=easy"
+
+# Filter by topic
+curl "http://localhost:8000/quiz?topic=shapes&limit=5"
 ```
 
 ---
 
-### POST `/submit-answer`
+### Step 5 — Submit answers (triggers adaptive difficulty)
 
-Submit a student's answer; triggers adaptive difficulty update.
+Replace `question_id` with a real ID from Step 3:
 
 ```bash
+# Correct answer
 curl -X POST http://localhost:8000/submit-answer \
   -H "Content-Type: application/json" \
   -d '{
@@ -202,6 +264,7 @@ curl -X POST http://localhost:8000/submit-answer \
   }'
 ```
 
+Expected:
 ```json
 {
   "is_correct": true,
@@ -211,49 +274,53 @@ curl -X POST http://localhost:8000/submit-answer \
 }
 ```
 
+> After **3 consecutive correct** answers `new_difficulty` promotes to `medium`.
+> After **2 consecutive wrong** answers it demotes back to `easy`.
+
 ---
 
-### GET `/student/{student_id}/profile`
+### Step 6 — Student profile and history
 
 ```bash
+# Current difficulty level and accuracy
 curl http://localhost:8000/student/S001/profile
-```
 
-```json
-{
-  "student_id": "S001",
-  "current_difficulty": "medium",
-  "total_correct": 7,
-  "total_answered": 10,
-  "accuracy_percentage": 70.0
-}
+# Answer history (newest first)
+curl http://localhost:8000/student/S001/history
+
+# Next unanswered question at current difficulty
+curl http://localhost:8000/student/S001/next-question
 ```
 
 ---
 
-### GET `/student/{student_id}/history?limit=20`
+## API Reference
 
-Returns the student's answer history, newest first.
+### POST `/ingest`
+Upload a PDF and extract/store its content.
 
----
+### POST `/generate-quiz`
+Generate MCQ, True/False, and Fill-in-the-blank questions from an ingested source via Claude.
+
+### GET `/quiz`
+Retrieve questions. Filters: `topic`, `difficulty`, `subject`, `grade`, `limit`.
+
+### POST `/submit-answer`
+Submit a student answer. Returns correctness and updated difficulty.
+
+### GET `/student/{student_id}/profile`
+Returns current difficulty, total answered, total correct, accuracy %.
+
+### GET `/student/{student_id}/history`
+Returns full answer history, newest first.
 
 ### GET `/student/{student_id}/next-question`
-
 Returns the next unanswered question at the student's current difficulty.
-Falls back to adjacent difficulty levels if exhausted.
-
-| Query param | Description |
-|---|---|
-| `topic` | Optional topic filter |
-| `subject` | Optional subject filter |
-
----
 
 ### GET `/health`
+Service health check.
 
-```json
-{ "status": "ok", "service": "peblo-quiz-engine" }
-```
+> Full interactive docs with request/response schemas: `http://localhost:8000/docs`
 
 ---
 
@@ -283,32 +350,14 @@ All quiz questions carry a `source_chunk_id` — full traceability from question
 
 ---
 
-## Sample Data
+## Sample Outputs
 
-**Content chunk (stored after ingestion):**
-```json
-{
-  "source_id": "SRC_A1B2C3",
-  "chunk_id": "SRC_A1B2C3_CH_01",
-  "grade": 1,
-  "subject": "Math",
-  "topic": "Counting Numbers",
-  "text": "Numbers help us count objects. We start counting from 1..."
-}
-```
+See the `samples/` directory for:
 
-**Generated question:**
-```json
-{
-  "question_id": "Q_SRC_A1B2C3_CH_01_001",
-  "question": "What number do we start counting from?",
-  "type": "MCQ",
-  "options": ["0", "1", "2", "10"],
-  "answer": "1",
-  "difficulty": "easy",
-  "source_chunk_id": "SRC_A1B2C3_CH_01"
-}
-```
+- `extracted_chunks.json` — example content chunks after ingestion
+- `generated_questions.json` — example quiz questions from all 3 PDFs
+- `api_responses.json` — example response for every endpoint
+- `database_schema.sql` — full schema with indexes
 
 ---
 
