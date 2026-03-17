@@ -9,8 +9,11 @@ import shutil
 import tempfile
 from typing import List, Optional
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
+
+load_dotenv()  # load .env before any module reads os.getenv()
 
 from models.database import engine, get_db
 from models import Base
@@ -206,8 +209,7 @@ def get_next_question(
     Falls back to adjacent difficulty levels if none is available.
     """
     from evaluation.adaptive import AdaptiveEngine
-    engine_obj = AdaptiveEngine()
-    question = engine_obj.get_next_question(db, student_id, topic=topic, subject=subject)
+    question = AdaptiveEngine().get_next_question(db, student_id, topic=topic, subject=subject)
     return question
 
 

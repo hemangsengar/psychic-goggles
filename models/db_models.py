@@ -1,7 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from models.database import Base
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class SourceDocument(Base):
@@ -14,7 +18,7 @@ class SourceDocument(Base):
     subject = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
     status = Column(String, default="pending", nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=_now, nullable=False)
 
     chunks = relationship("ContentChunk", back_populates="source_document", cascade="all, delete-orphan")
 
@@ -30,7 +34,7 @@ class ContentChunk(Base):
     topic = Column(String, nullable=False)
     text = Column(Text, nullable=False)
     chunk_index = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=_now, nullable=False)
 
     source_document = relationship("SourceDocument", back_populates="chunks")
     questions = relationship("QuizQuestion", back_populates="chunk", cascade="all, delete-orphan")
@@ -48,7 +52,7 @@ class QuizQuestion(Base):
     options = Column(Text, nullable=True)       # JSON string, only for MCQ/TRUE_FALSE
     answer = Column(String, nullable=False)
     difficulty = Column(String, nullable=False) # "easy", "medium", "hard"
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=_now, nullable=False)
 
     chunk = relationship("ContentChunk", back_populates="questions")
     student_answers = relationship("StudentAnswer", back_populates="question", cascade="all, delete-orphan")
@@ -63,7 +67,7 @@ class StudentAnswer(Base):
     selected_answer = Column(String, nullable=False)
     is_correct = Column(Boolean, nullable=False)
     difficulty_at_attempt = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=_now, nullable=False)
 
     question = relationship("QuizQuestion", back_populates="student_answers")
 
@@ -78,4 +82,4 @@ class StudentProfile(Base):
     consecutive_incorrect = Column(Integer, default=0, nullable=False)
     total_correct = Column(Integer, default=0, nullable=False)
     total_answered = Column(Integer, default=0, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=_now, onupdate=_now, nullable=False)

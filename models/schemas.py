@@ -95,3 +95,4 @@ class StudentAnswerHistory(BaseModel):
     correct_answer: str
     is_correct: bool
     difficulty_at_attempt: str
+    answered_at: str

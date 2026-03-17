@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from sqlalchemy.orm import Session
@@ -59,7 +59,7 @@ class EvaluationService:
         profile.total_answered += 1
         if is_correct:
             profile.total_correct += 1
-        profile.updated_at = datetime.utcnow()
+        profile.updated_at = datetime.now(timezone.utc)
 
         # Adapt difficulty
         new_difficulty = self.adaptive.adjust_difficulty(profile, is_correct)
@@ -85,7 +85,7 @@ class EvaluationService:
     def get_student_profile(self, student_id: str) -> Dict:
         """Return the student's profile with computed accuracy percentage."""
         profile = self._get_or_create_profile(student_id)
-        self.db.commit()
+        self.db.flush()  # persist new profile without committing a read-only fetch
 
         accuracy = (
             round(profile.total_correct / profile.total_answered * 100, 1)

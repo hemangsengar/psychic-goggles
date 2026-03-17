@@ -17,7 +17,14 @@ class QuizService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.generator = QuizGenerator()
+        self._generator: Optional[QuizGenerator] = None
+
+    @property
+    def generator(self) -> QuizGenerator:
+        """Lazy-init: only create the generator (and read the API key) when needed."""
+        if self._generator is None:
+            self._generator = QuizGenerator()
+        return self._generator
 
     def generate_for_source(self, source_id: str, questions_per_chunk: int = 3) -> List[Dict]:
         """
@@ -55,18 +62,20 @@ class QuizService:
             }
             generated = self.generator.generate_questions(chunk_dict, questions_per_chunk)
 
-            for i, q_data in enumerate(generated):
+            # Count existing questions for this chunk once before iterating
+            base_count = (
+                self.db.query(QuizQuestion)
+                .filter(QuizQuestion.chunk_id == chunk.chunk_id)
+                .count()
+            )
+            new_q_index = 0
+            for q_data in generated:
                 if q_data["question"] in existing_texts:
                     logger.debug("Skipping duplicate question: %s", q_data["question"][:60])
                     continue
 
-                # Build a stable, traceable question_id
-                existing_count = (
-                    self.db.query(QuizQuestion)
-                    .filter(QuizQuestion.chunk_id == chunk.chunk_id)
-                    .count()
-                )
-                question_id = f"Q_{chunk.chunk_id}_{existing_count + i + 1:03d}"
+                question_id = f"Q_{chunk.chunk_id}_{base_count + new_q_index + 1:03d}"
+                new_q_index += 1
 
                 db_question = QuizQuestion(
                     question_id=question_id,
