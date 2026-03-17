@@ -1,6 +1,14 @@
-venv
+venv/
 
 .env
 
 __pycache__/
+*.pyc
+*.pyo
+
+# Database files
+*.db
+*.sqlite3
+
+# Assignment brief PDF (not needed in repo)
 Peblo AI Backend Engineer Challenge - Google Docs.pdf
