@@ -74,7 +74,7 @@ async def ingest_pdf(
 
     try:
         ingester = PDFIngester(db)
-        result = ingester.ingest(tmp_path, grade=grade, subject=subject)
+        result = ingester.ingest(tmp_path, grade=grade, subject=subject, original_filename=file.filename)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:

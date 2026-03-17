@@ -17,7 +17,7 @@ class PDFIngester:
         self.extractor = PDFExtractor()
         self.processor = TextProcessor()
 
-    def ingest(self, file_path: str, grade: int, subject: str) -> Dict:
+    def ingest(self, file_path: str, grade: int, subject: str, original_filename: str | None = None) -> Dict:
         """
         Ingest a PDF file end-to-end:
         1. Generate a unique source_id
@@ -30,7 +30,7 @@ class PDFIngester:
         Returns a summary dict with source_id, filename, and chunks_created.
         Raises on failure after setting status to 'failed'.
         """
-        filename = os.path.basename(file_path)
+        filename = original_filename or os.path.basename(file_path)
         source_id = f"SRC_{uuid4().hex[:6].upper()}"
 
         # 1. Persist the source document record early so we can track status
