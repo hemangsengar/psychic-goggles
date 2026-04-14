@@ -1,4 +1,4 @@
-# Peblo Quiz Engine
+# Adaptive Quiz Engine
 
 A backend system that ingests educational PDFs, generates quiz questions with Claude AI, and serves them through a REST API with adaptive difficulty.
 
